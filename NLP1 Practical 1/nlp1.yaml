@@ -1,0 +1,34 @@
+name: nlp1
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12.4
+  - pip=24.2
+  - pip:
+    - numpy==1.26.4
+    - opencv-contrib-python==4.10.0.84
+    - matplotlib==3.9.2
+    - jupyter==1.1.0
+    - scikit-learn==1.5.1
+    - scipy==1.14.1
+    - imageio==2.35.1
+    - torch==2.2.0
+    - torchvision==0.17.0
+    - tensorboard==2.17.1
+    - torchinfo==1.8.0
+    - pandas==2.2.2
+    - pytz==2024.1
+    - tzdata==2024.1
+    - tqdm==4.66.5
+    - faiss-cpu==1.8.0
+    - nltk==3.8.1  # For FreqDist, ngrams, PorterStemmer
+    - google-colab==1.0.0  # For Colab-specific imports
+    - requests==2.31.0  # For HTTP requests
+    - json5==0.9.11  # For JSON operations
+    - pickle5==0.0.13  # Pickle compatibility for serialization
+  - mathlib  # Math utilities
+  - os  # File system utilities
+  - sys  # System-specific parameters
+  - subprocess  # Subprocess module for call command
+
