@@ -1,0 +1,258 @@
+{
+   "cell_type": "markdown",
+   "metadata": {
+    "id": "s6A2zX9_BRKm"
+   },
+   "source": [
+    "## Features, overfitting, and the curse of dimensionality\n",
+    "\n",
+    "In the Bag-of-Words model, ideally we would like each distinct word in\n",
+    "the text to be mapped to its own dimension in the output vector\n",
+    "representation. However, real world text is messy, and we need to decide\n",
+    "on what we consider to be a word. For example, is “`word`\" different\n",
+    "from “`Word`\", from “`word`”, or from “`words`\"? Too strict a\n",
+    "definition, and the number of features explodes, while our algorithm\n",
+    "fails to learn anything generalisable. Too lax, and we risk destroying\n",
+    "our learning signal. In the following section, you will learn about\n",
+    "confronting the feature sparsity and the overfitting problems as they\n",
+    "occur in NLP classification tasks."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "id": "EKK8FNt8VtcZ"
+   },
+   "source": [
+    "### Stemming (1.5pts)\n",
+    "\n",
+    "To make your algorithm more robust, use stemming and hash different inflections of a word to the same feature in the BoW vector space. Please use the [Porter stemming\n",
+    "    algorithm](http://www.nltk.org/howto/stem.html) from NLTK.\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 82,
+   "metadata": {
+    "id": "NxtCul1IrBi_"
+   },
+   "outputs": [],
+   "source": [
+    "# YOUR CODE HERE\n",
+    "def train_NB_smoothing_stemmed(C, D, stemmer=PorterStemmer(), kappa = 1):\n",
+    "        \n",
+    "        Ndoc = len(D)\n",
+    "        log_prior = {}\n",
+    "        log_likelihood = {}\n",
+    "        big_doc = {}\n",
+    "    \n",
+    "        # Make vocab for all documents\n",
+    "        V_pos = set()\n",
+    "        V_neg = set()\n",
+    "        for doc in D:\n",
+    "            if doc['sentiment'] == 'POS':\n",
+    "                for s in doc[\"content\"]:\n",
+    "                    for w, _ in s:\n",
+    "                        V_pos.add(stemmer.stem(w))\n",
+    "            if doc['sentiment'] == 'NEG':\n",
+    "                for s in doc[\"content\"]:\n",
+    "                    for w, _ in s:\n",
+    "                        V_neg.add(stemmer.stem(w))\n",
+    "        \n",
+    "        V = V_pos.union(V_neg)\n",
+    "    \n",
+    "        # Calculate P(w|c)\n",
+    "        for c in C:\n",
+    "            big_doc[c] = [doc for doc in D if doc[\"sentiment\"] == c]\n",
+    "            Nc = len(big_doc[c])\n",
+    "            log_prior[c] = np.log(Nc/Ndoc) if Nc > 0 else -np.inf\n",
+    "            word_counts = Counter()\n",
+    "            # Count occurences of each w in big_doc[c]\n",
+    "            for doc in big_doc[c]:\n",
+    "                for sentence in doc['content']:\n",
+    "                    for word, pos_tag in sentence:\n",
+    "                        word_counts[stemmer.stem(word)] += 1\n",
+    "            \n",
+    "            sum1 = sum(word_counts[v] for v in V)\n",
+    "    \n",
+    "            for w in V:\n",
+    "                log_likelihood[w,c] = np.log(word_counts[w] + kappa) - np.log(sum1 + len(V)*kappa)\n",
+    "        \n",
+    "        return log_prior,log_likelihood,V_pos,V_neg\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "id": "6SrJ1BeLXTnk"
+   },
+   "source": [
+    "#### (Q2.7): How does the performance of your classifier change when you use stemming on your training and test datasets? (1pt)\n",
+    "Use cross-validation to evaluate the classifier.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 83,
+   "metadata": {
+    "id": "gYqKBOiIrInT"
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Accuracy: 0.73\n",
+      "Accuracy for fold 1: 0.7300\n",
+      "Accuracy: 0.79\n",
+      "Accuracy for fold 2: 0.7900\n",
+      "Accuracy: 0.765\n",
+      "Accuracy for fold 3: 0.7650\n",
+      "Accuracy: 0.81\n",
+      "Accuracy for fold 4: 0.8100\n",
+      "Accuracy: 0.76\n",
+      "Accuracy for fold 5: 0.7600\n",
+      "Accuracy: 0.815\n",
+      "Accuracy for fold 6: 0.8150\n",
+      "Accuracy: 0.775\n",
+      "Accuracy for fold 7: 0.7750\n",
+      "Accuracy: 0.77\n",
+      "Accuracy for fold 8: 0.7700\n",
+      "Accuracy: 0.785\n",
+      "Accuracy for fold 9: 0.7850\n",
+      "Accuracy: 0.81\n",
+      "Accuracy for fold 10: 0.8100\n",
+      "\n",
+      "Average accuracy across all folds: 0.7810\n"
+     ]
+    }
+   ],
+   "source": [
+    "# YOUR CODE HERE\n",
+    "accuracies, average_accuracy = cross_validate_NB(reviews,train_NB_smoothing_stemmed)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "id": "JkDHVq_1XUVP"
+   },
+   "source": [
+    "#### (Q2.8) What happens to the number of features (i.e., the size of the vocabulary) when using stemming as opposed to (Q2.4)? (0.5pt)\n",
+    "Give actual numbers. You can use the held-out training set to determine these."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 84,
+   "metadata": {
+    "id": "MA3vee5-rJyy"
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of features with stemming: 34200\n",
+      "Number of features without stemming: 55384\n"
+     ]
+    }
+   ],
+   "source": [
+    "# YOUR CODE HERE\n",
+    "C = ['POS','NEG']\n",
+    "D = reviews\n",
+    "\n",
+    "log_prior,log_likelihood,V_pos,V_neg = train_NB_smoothing_stemmed(C, D, stemmer=PorterStemmer(), kappa = 1)\n",
+    "V_stemmed = V_pos.union(V_neg)\n",
+    "print(f'Number of features with stemming: {len(V_stemmed)}')\n",
+    "\n",
+    "log_prior,log_likelihood,V_pos,V_neg = train_NB_smoothing(C, D, kappa = 1)\n",
+    "V_not_stemmed = V_pos.union(V_neg)\n",
+    "print(f'Number of features without stemming: {len(V_not_stemmed)}')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "id": "SoazfxbNV5Lq"
+   },
+   "source": [
+    "### N-grams (1.5pts)\n",
+    "\n",
+    "A simple way of retaining some of the word\n",
+    "order information when using bag-of-words representations is to use **n-gram** features.\n",
+    "\n",
+    "\n",
+    "\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "id": "OHjy3I7-qWiu"
+   },
+   "source": [
+    "#### (Q2.9) Retrain your classifier from (Q2.4) using **unigrams+bigrams** and **unigrams+bigrams+trigrams** as features. (1pt)\n",
+    "Report accuracy and compare it with that of the approaches you have previously implemented. You are allowed to use NLTK to build n-grams from sentences."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 85,
+   "metadata": {
+    "id": "eYuKMTOpq9jz"
+   },
+   "outputs": [],
+   "source": [
+    "# YOUR CODE HERE\n",
+    "def train_NB_smoothing_ngrams(C, D, kappa=1, tri=True):\n",
+    "    \n",
+    "    Ndoc = len(D)\n",
+    "    log_prior = {}\n",
+    "    log_likelihood = {}\n",
+    "    big_doc = {}\n",
+    "\n",
+    "    # Make vocab for all documents\n",
+    "    V_pos = set()\n",
+    "    V_neg = set()\n",
+    "    for doc in D:\n",
+    "        if doc['sentiment'] == 'POS':\n",
+    "            for s in doc[\"content\"]:\n",
+    "                words = [word for word, pos in s]\n",
+    "                V_pos.add(ngrams(words,1))\n",
+    "                V_pos.add(ngrams(words,2))\n",
+    "                if tri: V_pos.add(ngrams(words,3))\n",
+    "        if doc['sentiment'] == 'NEG':\n",
+    "            for s in doc[\"content\"]:\n",
+    "                words = [word for word, pos in s]\n",
+    "                V_pos.add(ngrams(words,1))\n",
+    "                V_pos.add(ngrams(words,2))\n",
+    "                if tri: V_pos.add(ngrams(words,3))\n",
+    "    \n",
+    "    V = V_pos.union(V_neg)\n",
+    "\n",
+    "    # Calculate P(w|c)\n",
+    "    for c in C:\n",
+    "        big_doc[c] = [doc for doc in D if doc[\"sentiment\"] == c]\n",
+    "        Nc = len(big_doc[c])\n",
+    "        log_prior[c] = np.log(Nc/Ndoc) if Nc > 0 else -np.inf\n",
+    "        ngrams_counts = Counter()\n",
+    "        # Count occurences of each w in big_doc[c]\n",
+    "        for doc in big_doc[c]:\n",
+    "            for s in doc['content']:\n",
+    "                words = [word for word, pos in s]\n",
+    "                ngrams_counts.update(ngrams(words,1))\n",
+    "                ngrams_counts.update(ngrams(words,2))\n",
+    "                if tri: ngrams_counts.update(ngrams(words,3))\n",
+    "        print(ngrams_counts)\n",
+    "        sum1 = sum(ngrams_counts[v] for v in V)\n",
+    "\n",
+    "        for w in V:\n",
+    "            log_likelihood[w,c] = np.log(ngrams_counts[w] + kappa) - np.log(sum1 + len(V)*kappa)\n",
+    "            \n",
+    "    return log_prior,log_likelihood,V_pos,V_neg"
+   ]
+  }
