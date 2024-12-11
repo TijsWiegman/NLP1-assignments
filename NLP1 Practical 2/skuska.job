@@ -1,0 +1,30 @@
+#!/bin/bash
+#SBATCH --job-name=jupyter
+#SBATCH --output=jupyter_log_%J.txt
+#SBATCH --partition=gpu   # Replace with your partition
+#SBATCH --gpus-per-node=1
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4                 # Adjust based on your needs
+#SBATCH --mem=16G                        # Adjust memory as needed
+#SBATCH --time=02:00:00                  # Max runtime
+
+# Load necessary modules
+
+module purge
+module load 2023
+module load Anaconda3/2023.07-2
+module load jupyter
+
+source activate dl2024
+
+python -uc "import torch; print('GPU available?', torch.cuda.is_available())"
+srun python -uc "import torch; print('GPU available?', torch.cuda.is_available())"
+
+# Find an available port
+PORT=$(shuf -i 8000-8999 -n 1)
+
+# Start Jupyter Notebook
+jupyter-notebook NLP1_2024_Practical_2.ipynb --no-browser --ip=0.0.0.0 --port=$PORT
+
+

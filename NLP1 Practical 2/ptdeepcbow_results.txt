@@ -1,0 +1,10 @@
+PTDeepCBOW(
+  (embed): Embedding(18280, 300)
+  (linear): Sequential(
+    (0): Linear(in_features=300, out_features=168, bias=True)
+    (1): Tanh()
+    (2): Linear(in_features=168, out_features=168, bias=True)
+    (3): Tanh()
+    (4): Linear(in_features=168, out_features=5, bias=True)
+  )
+)
