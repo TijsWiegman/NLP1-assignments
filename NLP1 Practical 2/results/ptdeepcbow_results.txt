@@ -1,0 +1,52 @@
+PTDeepCBOW(
+  (embed): Embedding(17581, 300)
+  (linear): Sequential(
+    (0): Linear(in_features=300, out_features=168, bias=True)
+    (1): Tanh()
+    (2): Linear(in_features=168, out_features=168, bias=True)
+    (3): Tanh()
+    (4): Linear(in_features=168, out_features=5, bias=True)
+  )
+)
+Iter 100: loss=186.8414, time=0.20s
+iter 100: dev acc=0.1689
+new highscore
+Iter 200: loss=198.1889, time=0.68s
+iter 200: dev acc=0.2134
+new highscore
+Iter 300: loss=180.6412, time=1.14s
+iter 300: dev acc=0.2598
+new highscore
+Iter 400: loss=178.4647, time=1.61s
+iter 400: dev acc=0.2616
+new highscore
+Iter 500: loss=169.3365, time=2.07s
+iter 500: dev acc=0.2289
+Iter 600: loss=166.6396, time=2.51s
+iter 600: dev acc=0.2825
+new highscore
+Iter 700: loss=180.3796, time=2.97s
+iter 700: dev acc=0.2534
+Iter 800: loss=166.4511, time=3.41s
+iter 800: dev acc=0.2897
+new highscore
+Iter 900: loss=171.2751, time=3.87s
+iter 900: dev acc=0.2371
+Iter 1000: loss=168.2862, time=4.30s
+iter 1000: dev acc=0.2589
+Iter 1100: loss=174.3940, time=4.74s
+iter 1100: dev acc=0.2707
+Iter 1200: loss=168.6267, time=5.18s
+iter 1200: dev acc=0.2534
+Iter 1300: loss=172.7199, time=5.62s
+iter 1300: dev acc=0.2679
+Iter 1400: loss=167.5348, time=6.06s
+iter 1400: dev acc=0.2398
+Iter 1500: loss=175.5019, time=6.50s
+iter 1500: dev acc=0.2516
+Iter 1600: loss=161.1340, time=6.94s
+iter 1600: dev acc=0.2670
+Iter 1700: loss=162.8797, time=7.38s
+iter 1700: dev acc=0.2598
+Iter 1800: loss=157.4119, time=7.83s
+iter 1800: dev acc=0.2725
